@@ -1,0 +1,163 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Template for Climulon Python Example (RDS)",
+  "Parameters": {
+    "VpcId": {
+      "Type": "String",
+      "Description": "VPC Id of the VPS created in the shared template"
+    },
+    "SubnetIds": {
+      "Type": "CommaDelimitedList",
+      "Description": "Ids of the subnets in the shared template"
+    },
+    "RdsClusterName": {
+      "Type": "String",
+      "Description": "Postgres cluster name"
+    },
+    "PostgresDatabase": {
+      "Type": "String",
+      "Description": "Postgres database name"
+    },
+    "StorageSize": {
+      "Type": "String",
+      "Description": "DB storage size in gigabytes"
+    },
+    "NodeType": {
+      "Type": "String",
+      "Description": "Type of Postgres node instances",
+      "AllowedValues": [
+        "db.t2.micro",
+        "db.t2.small",
+        "db.t2.medium",
+        "db.t2.large",
+        "db.m4.large",
+        "db.m4.xlarge",
+        "db.m4.2xlarge",
+        "db.m4.4xlarge",
+        "db.m4.10xlarge",
+        "db.r3.large",
+        "db.r3.xlarge",
+        "db.r3.2xlarge",
+        "db.r3.4xlarge",
+        "db.r3.8xlarge"
+      ]
+    },
+    "PostgresVersion": {
+      "Type": "String",
+      "Description": "Postgres version"
+    },
+    "PostgresPort": {
+      "Type": "String",
+      "Description": "Postgres port"
+    },
+    "User": {
+      "Type": "String",
+      "Description": "Postgres database user"
+    },
+    "Password": {
+      "Type": "String",
+      "Description": "Postgres database password"
+    },
+    "MultiAZ": {
+      "Type": "String",
+      "AllowedValues": [
+        true,
+        false
+      ],
+      "Description": "Multi availability zone redundancy"
+    },
+    "SharedSecurityGroup": {
+      "Type": "String",
+      "Description": "Shared Security group of RDS/ECS"
+    }
+  },
+  "Resources": {
+    "Postgres": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "DBName": {
+          "Ref": "PostgresDatabase"
+        },
+        "DBSubnetGroupName": {
+          "Ref": "PostgresSubGroup"
+        },
+        "AllocatedStorage": {
+          "Ref": "StorageSize"
+        },
+        "AutoMinorVersionUpgrade": true,
+        "MultiAZ": {
+          "Ref": "MultiAZ"
+        },
+        "DBInstanceClass": {
+          "Ref": "NodeType"
+        },
+        "Engine": "postgres",
+        "DBInstanceIdentifier": {
+          "Ref": "RdsClusterName"
+        },
+        "Port": {
+          "Ref": "PostgresPort"
+        },
+        "PubliclyAccessible": false,
+        "StorageType": "gp2",
+        "VPCSecurityGroups": [
+          {
+            "Ref": "PostgresSecurityGroup"
+          }
+        ],
+        "EngineVersion": {
+          "Ref": "PostgresVersion"
+        },
+        "MasterUsername": {
+          "Ref": "User"
+        },
+        "MasterUserPassword": {
+          "Ref": "Password"
+        }
+      }
+    },
+    "PostgresSubGroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "Subgroup for Postgres",
+        "SubnetIds": {
+          "Ref": "SubnetIds"
+        }
+      }
+    },
+    "PostgresSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Postgres Security Group",
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": {
+              "Ref": "PostgresPort"
+            },
+            "ToPort": {
+              "Ref": "PostgresPort"
+            },
+            "SourceSecurityGroupId": {
+              "Ref": "SharedSecurityGroup"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "PostgresURL": {
+      "Description": "Postgres URL",
+      "Value": {
+        "Fn::GetAtt": [
+          "Postgres",
+          "Endpoint.Address"
+        ]
+      }
+    }
+  }
+}

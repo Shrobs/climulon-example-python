@@ -1,0 +1,129 @@
+{
+  "family": {
+    "Ref": "TASK_DEF_NAME"
+  },
+  "taskRoleArn": "",
+  "containerDefinitions": [
+    {
+      "name": "django",
+      "image": {
+        "Ref": "IMAGE_DJANGO"
+      },
+      "volumesFrom": [],
+      "memory": 795,
+      "cpu": 824,
+      "portMappings": [
+        {
+          "hostPort": 8000,
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "command": [
+        "npm",
+        "start"
+      ],
+      "workingDirectory": "/usr/src/app",
+      "essential": true,
+      "mountPoints": [],
+      "environment": [
+        {
+          "name": "REDIS_PORT_6379_TCP_ADDR",
+          "value": {
+            "Ref": "RedisURL"
+          }
+        },
+        {
+          "name": "REDIS_PORT_6379_TCP_PORT",
+          "value": {
+            "Ref": "RedisPort"
+          }
+        },
+        {
+          "name": "DB_PASS",
+          "value": {
+            "Ref": "Password"
+          }
+        },
+        {
+          "name": "DB_NAME",
+          "value": {
+            "Ref": "PostgresDatabase"
+          }
+        },
+        {
+          "name": "DB_USER",
+          "value": {
+            "Ref": "User"
+          }
+        },
+        {
+          "name": "DB_SERVICE",
+          "value": {
+            "Ref": "PostgresURL"
+          }
+        },
+        {
+          "name": "DB_PORT",
+          "value": {
+            "Ref": "PostgresPort"
+          }
+        },
+        {
+          "name": "SECRET_KEY",
+          "value": "5(15ds+i2+%ik6z&!yer+ga9m=e%jcqiz_5wszg)r-z!2--b2d"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": {
+            "Ref": "EcsClusterName"
+          },
+          "awslogs-region": {
+            "Ref" : "LOG_REGION"
+          },
+          "awslogs-stream-prefix": "django"
+        }
+      }
+    },
+    {
+      "name": "nginx",
+      "image": {
+        "Ref": "IMAGE_NGINX"
+      },
+      "volumesFrom": [
+        {
+          "sourceContainer": "django"
+        }
+      ],
+      "memory": 200,
+      "cpu": 200,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "mountPoints": [],
+      "links": [
+        "django:web"
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": {
+            "Ref": "EcsClusterName"
+          },
+          "awslogs-region": {
+            "Ref" : "LOG_REGION"
+          },
+          "awslogs-stream-prefix": "nginx"
+        }
+      }
+    }
+  ],
+  "volumes": []
+}

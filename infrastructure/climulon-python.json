@@ -1,0 +1,106 @@
+{
+   "infrastructureTemplates": [
+      {
+         "StackTemplate": "templates/infrastructure.json",
+         "StackName": "INFRA-Climulon-Python",
+         "StackOrder": "1",
+         "StackRegion": "eu-central-1",
+         "ComputeStack": "False",
+         "StackParameters": {
+            "ElbName": "climulon-python",
+            "ElbHealthcheckTarget": "HTTP:80/healthcheck",
+            "VpcCidrBlock": "10.99.0.0/16",
+            "SubnetAz1Cidr": "10.99.0.0/24",
+            "SubnetAz2Cidr": "10.99.1.0/24"
+         }
+      },
+      {
+         "StackTemplate": "templates/infrastructureREDIS.json",
+         "StackName": "REDIS-Climulon-Python",
+         "StackOrder": "2",
+         "StackRegion": "eu-central-1",
+         "ComputeStack": "False",
+         "StackParameters": {
+            "RedisClusterName": "climulon-python",
+            "RedisVersion": "3.2.4",
+            "RedisNodeType": "cache.t2.micro",
+            "RedisPort": "6379",
+            "VpcId": {
+               "Ref": "VPC"
+            },
+            "SubnetIds": {
+               "Ref": "SUBNETIDS"
+            },
+            "SharedSecurityGroup" : {
+               "Ref": "SharedSg"
+            }
+         }
+      },
+      {
+         "StackTemplate": "templates/infrastructureRDS.json",
+         "StackName": "RDS-Climulon-Python",
+         "StackOrder": "3",
+         "StackRegion": "eu-central-1",
+         "ComputeStack": "False",
+         "StackParameters": {
+            "VpcId": {
+               "Ref": "VPC"
+            },
+            "SubnetIds": {
+               "Ref": "SUBNETIDS"
+            },
+            "RdsClusterName": "climulon-python",
+            "PostgresDatabase": "postgres",
+            "PostgresVersion": "9.6.1",
+            "PostgresPort": "5432",
+            "NodeType": "db.t2.micro",
+            "StorageSize": "5",
+            "User": "postgres",
+            "Password": "postgres",
+            "MultiAZ": "true",
+            "SharedSecurityGroup" : {
+               "Ref": "SharedSg"
+            }
+         }
+      },
+      {
+         "StackTemplate": "templates/infrastructureECS.json",
+         "StackName": "ECS-Climulon-Python",
+         "StackOrder": "4",
+         "StackRegion": "eu-central-1",
+         "ComputeStack": "True",
+         "StackParameters": {
+            "EcsClusterName": "climulon-python",
+            "EcsAmiId": "ami-f562909a",
+            "EcsInstanceType": "t2.micro",
+            "VpcId": {
+               "Ref": "VPC"
+            },
+            "SubnetIds": {
+               "Ref": "SUBNETIDS"
+            },
+            "AsgMaxSize": "2",
+            "SharedSecurityGroup" : {
+               "Ref": "SharedSg"
+            },
+            "ElbSecurityGroup": {
+               "Ref": "ELBSg"
+            },
+            "LogRetentionPeriod" : "365"
+         }
+      }
+   ],
+   "taskDefsTemplates": [
+      "taskDefs/taskDef-climulon-python.json"
+   ],
+   "servicesTemplates": [
+      "services/service-climulon-python.json"
+   ],
+   "globalParameters": {
+      "TASK_DEF_NAME": "climulon-python",
+      "SERVICE_NAME": "climulon-python",
+      "LOG_REGION": "eu-central-1",
+      "IMAGE_NGINX": "shrobs/climulon-example-python-nginx:latest",
+      "IMAGE_DJANGO": "shrobs/climulon-example-python:latest"
+   }
+}

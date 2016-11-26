@@ -1,0 +1,26 @@
+{
+    "cluster": {
+        "Ref": "EcsClusterName"
+    },
+    "serviceName": {
+        "Ref": "SERVICE_NAME"
+    },
+    "taskDefinition": {
+        "Ref": "TASK_DEF_NAME"
+    },
+    "loadBalancers": [
+        {
+            "containerName": "nginx",
+            "containerPort": 80,
+            "loadBalancerName": {
+                "Ref": "ELBName"
+            }
+        }
+    ],
+    "desiredCount": 2,
+    "role": "arn:aws:iam::759801820406:role/ecsServiceRole",
+    "deploymentConfiguration": {
+        "maximumPercent": 200,
+        "minimumHealthyPercent": 50
+    }
+}
