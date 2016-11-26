@@ -1,0 +1,39 @@
+{% extends "_base.html" %}
+
+
+{% block content %}
+
+<div class="text-center">
+  {% load staticfiles %}
+  <br>
+  <h1>Climulon Python Example</h1>
+  <br>
+  <p>Congratz, you provisionned your first infrastructure with Climulon</p>
+  <br>
+  <p>This page has been requested <strong>{{counter}} times</strong> <= this is saved in <font color="#D82F27"><strong>Redis</strong></font>.</p>
+</div>
+
+<br>
+
+<form action="/" method="POST">
+  {% csrf_token %}
+  <div class="form-group">
+    <input name="item_text" class="form-control input-lg" type="text" placeholder="Enter a message" required>
+  </div>
+  <input type="submit" class="btn btn-success btn-lg btn-block" value="Submit">
+</form>
+
+<br>
+<hr>
+
+<div>
+<p>Messages are saved in <font color="#326590"><strong>Postgres</strong></font>.</p>
+</div>
+
+<div>
+  {% for item in items %}
+    <h4 class="well"><strong>{{item.text}}</strong> - <em>{{item.date_posted}}</em></h4>
+  {% endfor %}
+</div>
+
+{% endblock content %}
