@@ -1,5 +1,7 @@
 # Climulon example Python
 
+[![Build Status](https://travis-ci.org/Shrobs/climulon-example-python.svg?branch=master)](https://travis-ci.org/Shrobs/climulon-example-python)
+
 This is a micro django/redis/postgres app that showcases how **Climulon** is used to provision/decommission infrastructure and run docker apps in a single command.  
 The django app this showcase is based on [this work](https://github.com/realpython/dockerizing-django)
 

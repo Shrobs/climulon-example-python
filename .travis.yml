@@ -1,0 +1,22 @@
+sudo: required
+
+services:
+  - docker
+
+env:
+  DOCKER_COMPOSE_VERSION: 1.9.0
+
+script:
+  - docker-compose up --build
+
+after_success:
+  - if [[ $TRAVIS_TAG =~ ^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$ ]]; then
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    docker push shrobs/climulon-example-python:latest;
+    docker push shrobs/climulon-example-python-nginx:latest;
+    docker tag shrobs/climulon-example-python:latest shrobs/climulon-example-python:$TRAVIS_TAG;
+    docker tag shrobs/climulon-example-python-nginx:latest shrobs/climulon-example-python-nginx:$TRAVIS_TAG;
+    docker push shrobs/climulon-example-python:$TRAVIS_TAG;
+    docker push shrobs/climulon-example-python-nginx:$TRAVIS_TAG;
+    fi
+
